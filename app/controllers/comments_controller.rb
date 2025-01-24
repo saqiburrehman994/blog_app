@@ -26,17 +26,25 @@ class CommentsController < ApplicationController
 
   # PATCH/PUT /posts/:post_id/comments/:id
   def update
-    if @comment.update(comment_params)
-      redirect_to @post, notice: "Comment updated successfully."
+    if can? :update, @comment
+        if @comment.update(comment_params)
+          redirect_to @post, notice: "Comment updated successfully."
+        else
+          render :edit, status: :unprocessable_entity
+        end
     else
-      render :edit, status: :unprocessable_entity
+      head :forbidden
     end
   end
 
   # DELETE /posts/:post_id/comments/:id
   def destroy
-    @comment.destroy
-    redirect_to @post, notice: "Comment deleted successfully."
+    if can? :destroy, @comment
+      @comment.destroy
+      redirect_to @post, notice: "Comment deleted successfully."
+    else
+      head :forbidden
+    end
   end
 
   private

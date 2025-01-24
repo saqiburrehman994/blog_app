@@ -65,21 +65,24 @@
             </p>
 
             <!-- Actions (use icons for better clarity) -->
-            <div class="d-flex justify-content-between mt-auto">
+          <div class="d-flex justify-content-between mt-auto">
+
               <!-- Edit Button -->
+            <% if can? :update, post %>
               <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editPostModal-<%= post.id %>">
                 <i class="bi bi-pencil-square"> Edit</i>
               </button>
-
-              <!-- Comments Button -->
-              <%= link_to post_path(post), class: "btn btn-outline-secondary btn-sm" do %>
-                <i class="bi bi-chat-left-text"> Comments</i>
-              <% end %>
 
               <!-- Delete Button -->
               <%= link_to post_path(post), class: "btn btn-outline-danger btn-sm", data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } do %>
                 <i class="bi bi-trash"> Delete</i>
               <% end %>
+            <% end %>
+
+              <!-- Comments Button -->
+            <%= link_to post_path(post), class: "btn btn-outline-secondary btn-sm" do %>
+                <i class="bi bi-chat-left-text"> Comments</i>
+            <% end %>
             </div>
           </div>
         </div>
@@ -117,7 +120,7 @@
         </div>
       </div>
     <% end %>
-    <div class="d-flex justify-content-center align-items-center">
+    <div class=" pagination d-flex justify-content-center align-items-center">
     <%= paginate @posts, window: 2 %>
     </div>
   </div>

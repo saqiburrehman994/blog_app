@@ -23,6 +23,8 @@ gem "toastr_rails"
 gem "active_storage_validations"
 gem "kaminari"
 gem "kaminari-bootstrap"
+gem "cancancan"
+gem "byebug"
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
 

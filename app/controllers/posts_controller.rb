@@ -44,18 +44,26 @@ class PostsController < ApplicationController
 
   def update
      @post = Post.find(params[:id])
-     if @post.update(post_params)
-      redirect_to posts_path, notice: :"Post has been updated successfully."
-     else
-      render :edit, status: :unprocessable_entity
-     end
+      if can? :update, @post
+        if @post.update(post_params)
+          redirect_to posts_path, notice: :"Post has been updated successfully."
+        else
+          render :edit, status: :unprocessable_entity
+        end
+      else
+        head :forbidden
+      end
   end
 
   def destroy
     @post = Post.find(params[:id])
-    @post.destroy
-    flash[:alert] = "Post has been deleted successfully."
-    redirect_to posts_path, status: :see_other
+    if can? :destroy, @post
+        @post.destroy
+        flash[:alert] = "Post has been deleted successfully."
+        redirect_to posts_path, status: :see_other
+    else
+      head :forbidden
+    end
   end
   private
   def post_params
