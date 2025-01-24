@@ -1,0 +1,139 @@
+<div class="container my-5">
+  <!-- Category Filter - More prominent and clear -->
+  <div class="d-flex justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+      <h4 class="me-3">Filter by Category</h4>
+      <%= form_with(url: posts_path, method: :get, class: "form-inline") do %>
+        <%= select_tag :category_id, options_from_collection_for_select(Category.all, :id, :name, params[:category_id]), prompt: "All Categories", class: "form-select" %>
+        <%= submit_tag "Filter", class: "btn btn-outline-primary btn-sm ms-2" %>
+      <% end %>
+    </div>
+    <div>
+      <%= form_tag "/posts" , method: "GET" do%>
+        <%= label_tag :search_by_title, "Search by Title",class: "me-3 bold"%>
+        <%= text_field_tag :search_by_title, params[:search_by_title]%>
+        <%= submit_tag "Search", class: "btn btn-outline-primary btn-sm ms-2"%>
+      <%end%>
+    </div>
+    <!-- Button to create a new post (more visually prominent) -->
+    <div>
+      <button type="button" class="btn btn-primary btn-lg shadow" data-bs-toggle="modal" data-bs-target="#newPostModal">
+        <i class="bi bi-plus-circle me-2">New Post</i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Display posts in a responsive grid with card design -->
+  <div class="row g-4">
+    <% @posts.each do |post| %>
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+          <!-- Right side: Image (ensuring image fits well) -->
+          <% if post.image.attached? %>
+            <%= image_tag post.image, class: "card-img-top", style: "max-height: 200px; object-fit: cover;" %>
+          <% end %>
+
+          <div class="card-body d-flex flex-column position-relative">
+            <!-- Like Button positioned in the top right corner -->
+            <% if current_user %>
+              <% if post.liked_by.include?(current_user) %>
+                <%= button_to post_unlike_path(post), method: :delete, class: "like-btn position-absolute top-0 end-0 m-2" do %>
+                  <i class="fas fa-heart heart-liked"></i>
+                <% end %>
+              <% else %>
+                <%= button_to post_like_path(post), method: :post, class: "like-btn position-absolute top-0 end-0 m-2" do %>
+                  <i class="far fa-heart heart-not-liked"></i>
+                <% end %>
+              <% end %>
+            <% end %>
+
+            <!-- Title -->
+            <h5 class="card-title text-primary"><%= post.title %></h5>
+
+            <!-- Content preview (ensure it's not too long) -->
+            <p class="card-text text-muted"><%= post.content%></p>
+
+            <!-- Category with more distinct styling -->
+            <p class="card-text text-muted"><strong>Category:</strong> <%= post.category&.name || "Uncategorized" %></p>
+            <p class="card-text text-muted">Liked by <span class="fw-bold"><%=post.liked_by&.first&.email&.split('@')&.first || "No One" %></span>
+            <span>
+            <% if post.liked_by.count>1 %>
+            and <span class="fw-bold">
+              <%= link_to "#{post.liked_by.count-1} others", "#likedUsersModal-#{post.id}", class:"text-reset text-decoration-none", data: {bs_toggle: "modal"}%>
+            </span>
+            <%end%>
+            </p>
+
+            <!-- Actions (use icons for better clarity) -->
+            <div class="d-flex justify-content-between mt-auto">
+              <!-- Edit Button -->
+              <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editPostModal-<%= post.id %>">
+                <i class="bi bi-pencil-square"> Edit</i>
+              </button>
+
+              <!-- Comments Button -->
+              <%= link_to post_path(post), class: "btn btn-outline-secondary btn-sm" do %>
+                <i class="bi bi-chat-left-text"> Comments</i>
+              <% end %>
+
+              <!-- Delete Button -->
+              <%= link_to post_path(post), class: "btn btn-outline-danger btn-sm", data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } do %>
+                <i class="bi bi-trash"> Delete</i>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal for Editing a Post -->
+      <div class="modal fade" id="editPostModal-<%= post.id %>" tabindex="-1" aria-labelledby="editPostModalLabel-<%= post.id %>" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editPostModalLabel-<%= post.id %>">Edit Post: <%= post.title %></h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <!-- Render the form for editing the post -->
+              <%= render partial: "form", locals: { post: post } %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- MODAL for showing list of users -->
+      <div class="modal fade" id="likedUsersModal-<%= post.id%>", tabindex= -1 aria-labelledby="likedUsersModalLabel-<%= post.id%>" aria-hidden = "true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="likedUsersModalLabel-<%=post.id%>">Liked by:</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  <%post.liked_by.each do |user| %>
+                    <p><%= user.email.split('@').first %></p>
+                  <% end %>
+              </div>
+            </div>
+        </div>
+      </div>
+    <% end %>
+    <div class="d-flex justify-content-center align-items-center">
+    <%= paginate @posts, window: 2 %>
+    </div>
+  </div>
+</div>
+<!-- Modal for Creating a New Post -->
+<div class="modal fade" id="newPostModal" tabindex="-1" aria-labelledby="newPostModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="newPostModalLabel">New Post</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Render Partial for New Post Form -->
+        <%= render partial: "form", locals: { post: Post.new } %>
+      </div>
+    </div>
+  </div>
+</div>

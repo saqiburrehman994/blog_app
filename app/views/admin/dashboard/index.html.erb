@@ -1,0 +1,193 @@
+<div class="container my-5">
+  <div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-primary text-white">
+          <h4 class="h5 mb-0">Admin Dashboard</h4>
+        </div>
+        <div class="card-body p-0">
+          <ul class="nav flex-column" id="sidebar">
+            <li class="nav-item">
+              <a href="#posts" class="nav-link active" id="posts-link">Posts</a>
+            </li>
+            <li class="nav-item">
+              <a href="#comments" class="nav-link" id="comments-link">Comments</a>
+            </li>
+            <li class="nav-item">
+              <a href="#users" class="nav-link" id="users-link">Users</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- Content Area -->
+    <div class="col-md-9">
+      <div id="posts" class="content-section">
+        <h1 class="text-center mb-4">All Posts</h1>
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <h2 class="h4 mb-0">All Posts</h2>
+          </div>
+          <div class="card-body">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Title</th>
+                  <th>Author</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @posts.each do |post| %>
+                  <tr>
+                    <td><%= post.title %></td>
+                    <td><%= post.user.email.split('@').first %></td>
+                    <td><%= post.created_at.strftime('%Y-%m-%d %H:%M') %></td>
+                    <td>
+                      <div class="btn-group" role="group">
+                        <%= link_to "View", post_path(post), class: "btn btn-sm btn-outline-primary" %>
+                        <%= link_to "Edit", edit_post_path(post), class: "btn btn-sm btn-outline-warning" %>
+                        <%= link_to "Delete", post_path(post),
+                            data: { turbo_method: :delete, turbo_confirm: "Are you sure?" },
+                            class: "btn btn-sm btn-outline-danger" %>
+                      </div>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div id="comments" class="content-section" style="display:none;">
+        <h1 class="text-center mb-4">All Comments</h1>
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <h2 class="h4 mb-0">All Comments</h2>
+          </div>
+          <div class="card-body">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Post</th>
+                  <th>Author</th>
+                  <th>Content</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @comments.each do |comment| %>
+                  <tr>
+                    <td><%= link_to comment.post.title, post_path(comment.post) %></td>
+                    <td><%= comment.user.email.split('@').first %></td>
+                    <td><%= comment.content%></td>
+                    <td><%= comment.created_at.strftime('%Y-%m-%d %H:%M') %></td>
+                    <td>
+                      <%= link_to "Delete", post_comment_path(comment.post, comment),
+                          data: { turbo_method: :delete, turbo_confirm: "Are you sure?" },
+                          class: "btn btn-sm btn-outline-danger" %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div id="users" class="content-section" style="display:none;">
+        <h1 class="text-center mb-4">All Users</h1>
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white">
+            <h2 class="h4 mb-0">All Users</h2>
+          </div>
+          <div class="card-body">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Created At</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @users.each do |user| %>
+                  <tr>
+                    <td><%= user.profile.name %></td>
+                    <td><%= user.email %></td>
+                    <td><%= user.created_at.strftime('%Y-%m-%d %H:%M') %></td>
+                    <td>
+                      <%= link_to "Delete", user_path(user),
+                          data: { turbo_method: :delete, turbo_confirm: "Are you sure?" },
+                          class: "btn btn-sm btn-outline-danger" %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript to handle dynamic section toggle -->
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const links = document.querySelectorAll(".nav-link");
+    const sections = document.querySelectorAll(".content-section");
+
+    links.forEach(link => {
+      link.addEventListener("click", function(e) {
+        e.preventDefault();
+
+        links.forEach(link => link.classList.remove("active"));
+
+        link.classList.add("active");
+
+        const target = document.querySelector(link.getAttribute("href"));
+
+        sections.forEach(section => {
+          section.style.display = "none";
+        });
+
+        target.style.display = "block";
+      });
+    });
+  });
+</script>
+
+<style>
+  #sidebar {
+    border-right: 2px solid #ddd;
+  }
+
+  .nav-link.active {
+    background-color: #007bff;
+    color: #fff;
+  }
+
+  .nav-link {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+  }
+
+  .nav-link:hover {
+    background-color: #007bff;
+    color: white;
+  }
+
+  .card-body {
+    padding: 1.25rem;
+  }
+
+  .card-header {
+    padding: 1.25rem;
+  }
+</style>

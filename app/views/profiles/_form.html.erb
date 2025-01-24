@@ -1,0 +1,37 @@
+    <div class="card-body">
+          <%= form_with model: profile, class: "needs-validation" do |form| %>
+            <div class="mb-4">
+              <!-- Name Field -->
+              <%= form.label :name, "Full Name", class: "form-label fw-bold" %>
+              <%= form.text_field :name, placeholder: "Enter your full name", class: "form-control" %>
+            </div>
+
+            <div class="mb-4">
+              <!-- Birth Date Field -->
+              <%= form.label :birth_date, "Date of Birth", class: "form-label fw-bold" %>
+              <div class="d-flex justify-content-between">
+                <%= form.date_select :birth_date,
+                      prompt: { day: 'Day', month: 'Month', year: 'Year' },
+                      class: "form-control w-100" %>
+              </div>
+              <small class="text-muted">Choose your date of birth</small>
+            </div>
+
+            <div class="mb-4">
+              <!-- Gender Field -->
+              <%= form.label :gender, "Gender", class: "form-label fw-bold" %>
+              <%= form.select :gender, Profile.genders.keys.map{ |gender| [gender.capitalize,gender] }%>
+            </div>
+            <div class="mb-4">
+              <!--Avator Field -->
+              <%= form.label :avator, "Upload Your Profile Picture", class: "form-label fw-bold" %>
+              <%= form.file_field :avator, class:"form-control"%>
+              <small class="form-text text-muted">Accepted formats: JPG, PNG, GIF. Max size: 2MB.</small>
+            </div>
+
+            <div class="text-center">
+              <!-- Submit Button -->
+              <%= form.submit "Save Profile", class: "btn btn-primary mt-3 px-5 shadow-sm" %>
+            </div>
+          <% end %>
+    </div>

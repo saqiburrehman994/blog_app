@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Blog App" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+<nav class="navbar navbar-expand-md navbar-dark bg-dark text-white shadow">
+  <!-- Brand -->
+  <%= link_to 'Blog', root_path, class: "navbar-brand" %>
+
+  <!-- Toggler -->
+  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <!-- Navbar Links -->
+  <div class="collapse navbar-collapse" id="navbarNav">
+  <!-- Main Navigation Links -->
+    <ul class="navbar-nav me-auto">
+      <li class="nav-item">
+        <%= link_to 'Home', root_path, class: "nav-link #{'active' if current_page?(root_path)}" %>
+      </li>
+      <li class="nav-item">
+        <%= link_to 'Features', root_path, class: "nav-link #{'active' if current_page?(root_path)}" %>
+      </li>
+      <li class="nav-item">
+        <%= link_to 'Pricing', root_path, class: "nav-link #{'active' if current_page?(root_path)}" %>
+      </li>
+      <li class="nav-item">
+        <%= link_to 'About Us', root_path, class: "nav-link #{'active' if current_page?(root_path)}" %>
+      </li>
+    </ul>
+
+  <!-- User Section -->
+  <ul class="navbar-nav">
+    <% if user_signed_in? %>
+      <!-- User Dropdown -->
+      <li class="nav-item dropdown">
+        <a
+          class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+          href="#"
+          id="userDropdown"
+          role="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <div
+            class="rounded-circle border border-success overflow-hidden"
+            style="width: 40px; height: 40px;"
+          >
+            <%= image_tag current_user.profile.avator, style: "width: 100%; height: 100%; object-fit: cover;" %>
+          </div>
+        </a>
+
+        <!-- Dropdown Menu -->
+        <ul
+          class="dropdown-menu dropdown-menu-end shadow animate__animated animate__fadeIn"
+          aria-labelledby="userDropdown"
+        >
+          <% if current_user.profile.present? %>
+            <!-- Profile Details -->
+            <li class="dropdown-item text-center">
+              <div class="rounded-circle border border-success overflow-hidden mx-auto mb-2" style="width: 60px; height: 60px;">
+                <%= image_tag current_user.profile.avator, style: "width: 100%; height: 100%; object-fit: cover;" %>
+              </div>
+              <p class="mb-0 fw-bold"><%= current_user.profile.name %></p>
+              <small class="text-muted"><%= current_user.email %></small>
+            </li>
+            <li class="dropdown-item">
+              <strong>Gender:</strong> <%= current_user.profile.gender&.capitalize %>
+            </li>
+            <li class="dropdown-item">
+              <strong>Birth Date:</strong> <%= current_user.profile.birth_date&.strftime('%Y-%m-%d') %>
+            </li>
+            <li class="dropdown-item">
+              <%= link_to 'Edit Profile', edit_profile_path(current_user.profile), class: 'btn btn-outline-primary btn-sm w-100' %>
+            </li>
+          <% else %>
+            <li class="dropdown-item text-center">
+              <%= link_to 'Create Profile', new_profile_path, class: 'btn btn-success btn-sm w-100' %>
+            </li>
+          <% end %>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <%= link_to 'Sign Out', destroy_user_session_path, data: { turbo_method: :delete }, class: 'dropdown-item text-danger' %>
+          </li>
+        </ul>
+      </li>
+    <% else %>
+      <!-- Sign In/Sign Up Links -->
+      <li class="nav-item">
+        <%= link_to 'Sign In', new_user_session_path, class: "nav-link #{'active' if current_page?(new_user_session_path)}" %>
+      </li>
+      <li class="nav-item">
+        <%= link_to 'Sign Up', new_user_registration_path, class: "nav-link #{'active' if current_page?(new_user_registration_path)}" %>
+      </li>
+    <% end %>
+  </ul>
+</div>
+</nav>
+
+  <body>
+    <%= render 'shared/flashes' %>
+    <%= yield %>
+    </div>
+  </body>
+<footer class="bg-dark text-white py-4">
+  <div class="container">
+    <div class="row">
+      <!-- About Section -->
+      <div class="col-md-4">
+        <h5>About Us</h5>
+        <p>Welcome to our blog platform where we share insightful articles and creative ideas. Stay tuned for the latest updates!</p>
+      </div>
+
+      <!-- Quick Links Section -->
+      <div class="col-md-4">
+        <h5>Quick Links</h5>
+        <ul class="list-unstyled">
+          <li><a href="#" class="text-white text-decoration-none">Home</a></li>
+          <li><a href="#" class="text-white text-decoration-none">About</a></li>
+          <li><a href="#" class="text-white text-decoration-none">Features</a></li>
+          <li><a href="#" class="text-white text-decoration-none">Contact</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact Section -->
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <ul class="list-unstyled">
+          <li><i class="bi bi-envelope-fill me-2"></i>info@example.com</li>
+          <li><i class="bi bi-telephone-fill me-2"></i>+1 234 567 890</li>
+          <li><i class="bi bi-geo-alt-fill me-2"></i>123 Main Street, Anytown, USA</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Footer Bottom -->
+    <div class="text-center mt-4">
+      <p class="mb-0">&copy; <%= Time.now.year %> Blog Platform. All Rights Reserved.</p>
+    </div>
+  </div>
+</footer>
+
+</html>

@@ -1,0 +1,101 @@
+<div class="container my-5">
+  <!-- Post Details -->
+  <div class="card mb-4 shadow-sm">
+    <% if @post.image.attached? %>
+      <%= image_tag @post.image, class: "card-img-top", style: "max-height: 300px; object-fit: cover;" %>
+    <% end %>
+    <div class="card-body">
+      <h1 class="card-title"><%= @post.title %></h1>
+      <p class="text-muted">By <%= @post.user.email.split('@').first.capitalize %>, <%= @post.created_at.strftime("%B %d, %Y") %></p>
+      <p class="card-text"><%= @post.content %></p>
+      <p><strong>Category:</strong> <%= @post.category&.name || "Uncategorized" %></p>
+
+      <!-- Like Button (Heart Icon) -->
+      <div class="d-flex align-items-center mt-3">
+        <% if current_user %>
+          <% if @post.liked_by.include?(current_user) %>
+            <%= button_to post_unlike_path(@post), method: :delete, class: "like-btn me-3" do %>
+              <i class="fas fa-heart heart-liked"></i>
+            <% end %>
+          <% else %>
+            <%= button_to post_like_path(@post), method: :post, class: "like-btn me-3" do %>
+              <i class="far fa-heart heart-not-liked"></i>
+            <% end %>
+          <% end %>
+        <% end %>
+
+        <!-- Display Like Count -->
+        <span><strong><%= @post.likes.count %></strong> Like(s)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comments Section -->
+  <div class="mt-5">
+    <h3>Comments</h3>
+    <hr>
+    <% if @comments.any? %>
+      <% @comments.each do |comment| %>
+        <div class="border p-3 mb-3">
+          <p class="mb-1"><strong><%= comment.user.email.split('@').first.capitalize %>:</strong></p>
+          <p class="mb-1"><%= comment.content %></p>
+          <p class="text-muted small"><%= comment.created_at.strftime("%B %d, %Y %I:%M %p") %></p>
+          <div class="d-flex justify-content-end">
+            <!-- Edit Button (Modal Trigger) -->
+            <button type="button" class="btn btn-outline-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#editCommentModal-<%= comment.id %>">
+              Edit
+            </button>
+            <!-- Delete Button -->
+            <%= link_to "Delete", post_comment_path(@post, comment),
+                        data: {
+                          turbo_method: :delete,
+                          turbo_confirm: "Are you sure you want to delete this comment?"
+                        },
+                        class: "btn btn-outline-danger btn-sm" %>
+          </div>
+        </div>
+
+        <!-- Modal for Editing Comment -->
+        <div class="modal fade" id="editCommentModal-<%= comment.id %>" tabindex="-1" aria-labelledby="editCommentModalLabel-<%= comment.id %>" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="editCommentModalLabel-<%= comment.id %>">Edit Comment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <!-- Render Form for Editing Comment -->
+                <%= render partial: "comments/form", locals: { new_comment: comment, post: @post } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <p class="text-muted">No comments yet. Be the first to comment!</p>
+    <% end %>
+  </div>
+
+  <!-- Button to Trigger the New Comment Modal -->
+  <div class="text-center mt-4">
+    <button type="button" class="btn btn-primary btn-lg shadow" data-bs-toggle="modal" data-bs-target="#newCommentModal">
+      Add Comment
+    </button>
+  </div>
+
+  <!-- Modal for Creating New Comment -->
+  <div class="modal fade" id="newCommentModal" tabindex="-1" aria-labelledby="newCommentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="newCommentModalLabel">New Comment</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Render Partial for New Comment Form -->
+          <%= render partial: "comments/form", locals: { new_comment: Comment.new, post: @post } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
